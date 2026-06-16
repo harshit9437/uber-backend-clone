@@ -9,6 +9,7 @@ public class UberCloneApplication {
 	public static void main(String[] args) {
 
 		SpringApplication.run(UberCloneApplication.class, args);
+
 	}
 
 }

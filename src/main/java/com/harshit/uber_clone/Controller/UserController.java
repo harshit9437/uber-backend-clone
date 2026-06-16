@@ -1,0 +1,41 @@
+package com.harshit.uber_clone.Controller;
+
+import com.harshit.uber_clone.Dto.UserDto;
+import com.harshit.uber_clone.Entity.User;
+import com.harshit.uber_clone.Service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService =userService;
+    }
+
+    @PostMapping
+    public User createUser(@Valid @RequestBody UserDto userDto){
+        return userService.createUser(userDto);
+
+    }
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id){
+        return userService.getuser(id);
+    }
+    @GetMapping
+    public List<User> getAllUsers(){
+        return userService.getAllUser();
+    }
+    @PutMapping("/{id}")
+    public User updateUser(@Valid@PathVariable Long id,@RequestBody UserDto userDto){
+        return userService.updateUser(id,userDto);
+    }
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id){
+         userService.deleteUser(id);
+    }
+}
