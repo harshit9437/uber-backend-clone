@@ -11,7 +11,7 @@ import com.harshit.uber_clone.Repository.DriverRepository;
 import com.harshit.uber_clone.Repository.RideRepository;
 import com.harshit.uber_clone.Repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
+
 
 
 import java.util.ArrayList;
@@ -32,6 +32,20 @@ public class RideService {
         this.userRepository = userRepository;
         this.driverRepository = driverRepository;
     }
+    private RideResponseDto convertToDto(Ride ride){
+
+        RideResponseDto dto = new RideResponseDto();
+
+        dto.setId(ride.getId());
+        dto.setPickupLocation(ride.getPickupLocation());
+        dto.setDropLocation(ride.getDropLocation());
+        dto.setFare(ride.getFare());
+        dto.setStatus(ride.getStatus());
+        dto.setUserId(ride.getUser().getId());
+        dto.setDriverId(ride.getDriver().getId());
+
+        return dto;
+    }
     public RideResponseDto createRide(RideDto rideDto){
         User user=userRepository.findById(rideDto.getUserId()).orElseThrow(()->new ResourceNotFoundException(
                 "user not existed with id"+rideDto.getUserId()
@@ -44,38 +58,22 @@ public class RideService {
         ride.setDropLocation(rideDto.getDropLocation());
         ride.setUser(user);
         ride.setDriver(driver);
-        ride.setFare(ride.getFare());
-        ride.setStatus(RideStatus.REQUESTED);
+        ride.setFare(0.0);
+        ride.setStatus(ride.getStatus());
         Ride saveride= rideRepository.save(ride);
-        RideResponseDto rideResponseDto=new RideResponseDto();
-        rideResponseDto.setId(saveride.getId());
-        rideResponseDto.setPickupLocation(saveride.getPickupLocation());
-        rideResponseDto.setDropLocation(saveride.getDropLocation());
-        rideResponseDto.setFare(0.0);
-        rideResponseDto.setStatus(saveride.getStatus());
-        rideResponseDto.setUserId(saveride.getUser().getId());
-        rideResponseDto.setDriverId(saveride.getDriver().getId());
-        return rideResponseDto;
+
+        return convertToDto(saveride);
     }
     public RideResponseDto getRide(Long id){
         Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
                 "ride doesn't exist with id"+id
 
         ));
-        RideResponseDto response = new RideResponseDto();
-        response.setId(ride.getId());
-        response.setPickupLocation(ride.getPickupLocation());
-        response.setDropLocation(ride.getDropLocation());
 
-        response.setFare(ride.getFare());
-        response.setStatus(RideStatus.REQUESTED);
-
-        response.setUserId(ride.getUser().getId());
-        response.setDriverId(ride.getDriver().getId());
-        return response;
+        return convertToDto(ride);
 
     }
-    @GetMapping
+
     public List<RideResponseDto> getAllRides() {
 
         List<Ride> rides = rideRepository.findAll();
@@ -107,13 +105,58 @@ public class RideService {
         rideRepository.delete(ride);
     }
     public RideResponseDto acceptStatus(Long id){
-        Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
-                "ride does not exist with this id "+id
-        ));
+
+        Ride ride = rideRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "ride does not exist with this id " + id
+                ));
+
+        if(ride.getStatus() != RideStatus.REQUESTED){
+            throw new IllegalArgumentException(
+                    "Only requested rides can be accepted"
+            );
+        }
+
         ride.setStatus(RideStatus.ACCEPTED);
+
+        Ride saveRide = rideRepository.save(ride);
+
+        return convertToDto(saveRide);
+    }
+    public RideResponseDto startRide(Long id){
+        Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
+                "ride does not existed with id "+id
+        ));
+        if(ride.getStatus() != RideStatus.ACCEPTED){
+            throw new IllegalArgumentException(
+                    "Only Accepted rides can be start"
+            );
+
+        }
+        ride.setStatus(RideStatus.STARTED);
         Ride saveRide=rideRepository.save(ride);
-        RideResponseDto rideResponseDto=new RideResponseDto();
-        rideResponseDto.setStatus(RideStatus.ACCEPTED);
-        return rideResponseDto;
+        return convertToDto(saveRide);
+    }
+    public RideResponseDto rideComplete(Long id){
+        Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
+                "ride does not existed with id "+id
+        ));
+        if(ride.getStatus()!=RideStatus.STARTED){ throw new IllegalArgumentException(
+                "ride cannot complete which is not started");
+        }
+        ride.setStatus(RideStatus.COMPLETED);
+        Ride saveride=rideRepository.save(ride);
+        return convertToDto(saveride);
+    }
+    public RideResponseDto cancelRide(Long id ){
+        Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
+                "ride does not existed with id "+id
+        ));
+        if(ride.getStatus()==RideStatus.COMPLETED){
+            throw new IllegalArgumentException("cannot cancelled the ride once ride is completed");
+        }
+        ride.setStatus(RideStatus.CANCELLED);
+        Ride saveride=rideRepository.save(ride);
+        return convertToDto(saveride);
     }
 }

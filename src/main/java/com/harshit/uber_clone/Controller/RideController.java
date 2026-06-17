@@ -37,4 +37,16 @@ private final RideService rideService;
     public RideResponseDto acceptStatus(@PathVariable Long id){
         return rideService.acceptStatus(id);
     }
+    @PutMapping("/{id}/start")
+    public RideResponseDto startRide(@PathVariable Long id){
+        return rideService.startRide(id);
+    }
+    @PutMapping("/{id}/complete")
+    public RideResponseDto completeRide(@PathVariable Long id){
+        return rideService.rideComplete(id);
+    }
+    @PutMapping("/{id}/cancel")
+    public RideResponseDto cancelRide(@PathVariable Long id){
+        return rideService.cancelRide(id);
+    }
 }
