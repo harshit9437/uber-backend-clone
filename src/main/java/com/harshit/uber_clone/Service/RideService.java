@@ -12,8 +12,6 @@ import com.harshit.uber_clone.Repository.RideRepository;
 import com.harshit.uber_clone.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,13 +51,15 @@ public class RideService {
         Driver driver=driverRepository.findById(rideDto.getDriverId()).orElseThrow(()->new ResourceNotFoundException(
                 "driver not existed with id "+rideDto.getDriverId()
         ));
+        double fare=calculateFare(rideDto.getDistance());
+
         Ride ride=new Ride();
         ride.setPickupLocation(rideDto.getPickupLocation());
         ride.setDropLocation(rideDto.getDropLocation());
         ride.setUser(user);
         ride.setDriver(driver);
-        ride.setFare(0.0);
-        ride.setStatus(ride.getStatus());
+        ride.setFare(fare);
+        ride.setStatus(RideStatus.REQUESTED);
         Ride saveride= rideRepository.save(ride);
 
         return convertToDto(saveride);
@@ -158,5 +158,11 @@ public class RideService {
         ride.setStatus(RideStatus.CANCELLED);
         Ride saveride=rideRepository.save(ride);
         return convertToDto(saveride);
+    }
+    public double calculateFare(double distance){
+        double baseFare=50;
+        double ridePerKm=12;
+        return baseFare+(ridePerKm*distance);
+
     }
 }
