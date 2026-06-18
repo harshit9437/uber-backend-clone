@@ -27,4 +27,5 @@ public class Ride {
     @JoinColumn(name = "driver_id")
     private Driver driver;
     private double distance;
+
 }

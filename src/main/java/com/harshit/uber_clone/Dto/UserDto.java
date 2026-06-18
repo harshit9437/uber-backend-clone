@@ -17,4 +17,6 @@ public class UserDto {
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Invalid email")
     private String email;
+    @NotBlank(message = "phone no is required")
+    private String phoneNo;
 }

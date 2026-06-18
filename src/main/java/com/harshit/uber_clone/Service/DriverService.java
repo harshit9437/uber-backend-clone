@@ -19,6 +19,10 @@ public class DriverService {
         Driver driver=new Driver();
         driver.setName(driverDto.getName());
         driver.setEmail(driverDto.getEmail());
+        driver.setPhoneNO(driverDto.getPhoneNo());
+        driver.setVehicleNo(driverDto.getVehicleNo());
+        driver.setRating(0.0);
+        driver.setAvailable(true);
         return driverRepository.save(driver);
     }
 

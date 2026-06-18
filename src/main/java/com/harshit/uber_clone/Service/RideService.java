@@ -52,7 +52,11 @@ public class RideService {
                 "driver not existed with id "+rideDto.getDriverId()
         ));
         double fare=calculateFare(rideDto.getDistance());
-
+        if(!driver.isAvailable()){
+            throw new IllegalArgumentException(
+                    "Driver is currently unavailable"
+            );
+        }
         Ride ride=new Ride();
         ride.setPickupLocation(rideDto.getPickupLocation());
         ride.setDropLocation(rideDto.getDropLocation());
@@ -115,15 +119,19 @@ public class RideService {
             throw new IllegalArgumentException(
                     "Only requested rides can be accepted"
             );
+
+
         }
 
         ride.setStatus(RideStatus.ACCEPTED);
-
+        Driver driver=ride.getDriver();
+        driver.setAvailable(false);
+        driverRepository.save(driver);
         Ride saveRide = rideRepository.save(ride);
 
         return convertToDto(saveRide);
     }
-    public RideResponseDto startRide(Long id){
+    public RideResponseDto startStatus(Long id){
         Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
                 "ride does not existed with id "+id
         ));
@@ -133,11 +141,14 @@ public class RideService {
             );
 
         }
+        Driver driver=ride.getDriver();
+        driver.setAvailable(false);
+        driverRepository.save(driver);
         ride.setStatus(RideStatus.STARTED);
         Ride saveRide=rideRepository.save(ride);
         return convertToDto(saveRide);
     }
-    public RideResponseDto rideComplete(Long id){
+    public RideResponseDto completeStatus(Long id){
         Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
                 "ride does not existed with id "+id
         ));
@@ -145,10 +156,13 @@ public class RideService {
                 "ride cannot complete which is not started");
         }
         ride.setStatus(RideStatus.COMPLETED);
+        Driver driver=ride.getDriver();
+        driver.setAvailable(true);
+        driverRepository.save(driver);
         Ride saveride=rideRepository.save(ride);
         return convertToDto(saveride);
     }
-    public RideResponseDto cancelRide(Long id ){
+    public RideResponseDto cancelStatus(Long id ){
         Ride ride=rideRepository.findById(id).orElseThrow(()->new ResourceNotFoundException(
                 "ride does not existed with id "+id
         ));
@@ -156,6 +170,9 @@ public class RideService {
             throw new IllegalArgumentException("cannot cancelled the ride once ride is completed");
         }
         ride.setStatus(RideStatus.CANCELLED);
+        Driver driver=ride.getDriver();
+        driver.setAvailable(true);
+        driverRepository.save(driver);
         Ride saveride=rideRepository.save(ride);
         return convertToDto(saveride);
     }

@@ -27,4 +27,5 @@ public class Driver {
     @OneToMany(mappedBy = "driver")
     @JsonIgnore
     private List<Ride> rides;
+    private boolean available=true;
 }

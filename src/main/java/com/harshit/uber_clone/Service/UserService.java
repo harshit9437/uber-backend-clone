@@ -19,6 +19,7 @@ public class UserService {
         User user=new User();
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
+        user.setPhone(userDto.getPhoneNo());
         return userRepository.save(user);
     }
     //getting user
