@@ -18,8 +18,7 @@ private String pickupLocation;
 private String dropLocation;
 @NotNull(message = "required userId")
 private Long userId;
-@NotNull(message = "required driverId")
-private Long driverId;
+
 @NotNull(message = "distance cannot  be empty")
 private Long distance;
 }

@@ -48,15 +48,17 @@ public class RideService {
         User user=userRepository.findById(rideDto.getUserId()).orElseThrow(()->new ResourceNotFoundException(
                 "user not existed with id"+rideDto.getUserId()
         ));
-        Driver driver=driverRepository.findById(rideDto.getDriverId()).orElseThrow(()->new ResourceNotFoundException(
-                "driver not existed with id "+rideDto.getDriverId()
-        ));
-        double fare=calculateFare(rideDto.getDistance());
-        if(!driver.isAvailable()){
+        List<Driver> drivers = driverRepository.findByAvailableTrue();
+
+        if(drivers.isEmpty()){
             throw new IllegalArgumentException(
-                    "Driver is currently unavailable"
+                    "No drivers available"
             );
         }
+
+        Driver driver = drivers.get(0);
+        double fare=calculateFare(rideDto.getDistance());
+
         Ride ride=new Ride();
         ride.setPickupLocation(rideDto.getPickupLocation());
         ride.setDropLocation(rideDto.getDropLocation());
