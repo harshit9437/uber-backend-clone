@@ -4,15 +4,18 @@ import com.harshit.uber_clone.Dto.UserDto;
 import com.harshit.uber_clone.Entity.User;
 import com.harshit.uber_clone.Exception.ResourceNotFoundException;
 import com.harshit.uber_clone.Repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+
     }
     //creating user
     public User createUser(UserDto userDto){
@@ -20,6 +23,9 @@ public class UserService {
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         user.setPhone(userDto.getPhoneNo());
+        user.setPassword(
+                passwordEncoder.encode(userDto.getPassword())
+        );;
         return userRepository.save(user);
     }
     //getting user
