@@ -4,6 +4,7 @@ import com.harshit.uber_clone.Dto.UserDto;
 import com.harshit.uber_clone.Entity.User;
 import com.harshit.uber_clone.Exception.ResourceNotFoundException;
 import com.harshit.uber_clone.Repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +13,11 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
+    private final ModelMapper modelMapper;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.modelMapper=modelMapper;
 
     }
     //creating user
@@ -51,6 +54,18 @@ public class UserService {
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         return userRepository.save(user);
+    }
+    public UserDto getUserByEmail(String email) {
+
+        System.out.println("SEARCHING USER = " + email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        System.out.println("FOUND USER = " + user.getEmail());
+
+        return modelMapper.map(user, UserDto.class);
     }
 
 }
